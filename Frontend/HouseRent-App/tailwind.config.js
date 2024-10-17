@@ -6,7 +6,19 @@ export default {
     "node_modules/preline/dist/*.js",
   ],
   theme: {
-    extend: {},
+    extend: {
+      "animation": {
+        "text-gradient": "text-gradient 1.5s linear infinite"
+      },
+      "keyframes": {
+        "text-gradient": {
+          "to": {
+            "backgroundPosition": "200% center"
+          }
+        }
+      }
+    
+    },
   },
   plugins: [
     require('preline/plugin'),

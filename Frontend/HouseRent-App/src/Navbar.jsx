@@ -11,7 +11,9 @@ function Navbar() {
               href="##"
               aria-label="Brand"
             >
-              Rentify
+              <span className="bg-clip-text bg-gradient-to-tl from-blue-600 to-violet-600 text-transparent">
+                Rentify
+              </span>
             </a>
 
             {/* <!-- Collapse Button --> */}
