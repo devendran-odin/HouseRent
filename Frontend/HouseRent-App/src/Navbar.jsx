@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 function Navbar() {
   return (
     <>
@@ -6,15 +7,15 @@ function Navbar() {
         <nav className="relative max-w-[66rem] w-full md:flex md:items-center md:justify-between md:gap-3 ps-5 pe-2 mx-2 lg:mx-auto py-2">
           {/* <!-- Logo w/ Collapse Button --> */}
           <div className="flex items-center justify-between">
-            <a
+            <Link
               className="flex-none font-semibold text-xl text-blue-700 focus:outline-none focus:opacity-80"
-              href="##"
+              to="/"
               aria-label="Brand"
             >
               <span className="bg-clip-text bg-gradient-to-tl from-blue-600 to-violet-600 text-transparent">
                 Rentify
               </span>
-            </a>
+            </Link>
 
             {/* <!-- Collapse Button --> */}
             <div className="md:hidden">
@@ -73,9 +74,9 @@ function Navbar() {
           >
             <div className="overflow-hidden overflow-y-auto max-h-[75vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
               <div className="py-2 md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1">
-                <a
+                <Link
                   className="p-2 flex items-center text-sm text-blue-600 focus:outline-none focus:text-blue-600"
-                  href="#"
+                  to="/properties"
                   aria-current="page"
                 >
                   <svg
@@ -94,7 +95,7 @@ function Navbar() {
                     <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   </svg>
                   Properties
-                </a>
+                </Link>
 
                 <a
                   className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
@@ -277,27 +278,20 @@ function Navbar() {
 
                 {/* <!-- Button Group --> */}
                 <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
-                  <a
+                  <Link
                     className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                    href="#"
+                    to="/signup"
                   >
-                    <svg
-                      className="shrink-0 size-4 me-3 md:me-2"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    Log in
-                  </a>
+                    Signup
+                  </Link>
+                </div>
+                <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
+                  <Link
+                    className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                    to="/login"
+                  >
+                    Login
+                  </Link>
                 </div>
                 {/* <!-- End Button Group --> */}
               </div>
