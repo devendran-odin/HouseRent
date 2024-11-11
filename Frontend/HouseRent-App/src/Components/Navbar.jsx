@@ -1,5 +1,18 @@
-import { Link } from "react-router-dom";
-function Navbar() {
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
+function Navbar({ scrollToSteps }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleAboutClick = () => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => scrollToSteps(), 400); // Ensures the page loads before scrolling
+    } else {
+      scrollToSteps();
+    }
+  };
+
   return (
     <>
       {/* <!-- ========== HEADER ========== --> */}
@@ -98,8 +111,9 @@ function Navbar() {
                 </Link>
 
                 <a
-                  className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                  href="#"
+                  className="p-2 flex items-center text-sm text-gray-800 
+                  hover:cursor-pointer hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                  onClick={handleAboutClick}
                 >
                   <svg
                     className="shrink-0 size-4 me-3 md:me-2 block md:hidden"
@@ -121,9 +135,9 @@ function Navbar() {
                   About
                 </a>
 
-                <a
+                <Link
                   className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                  href="#"
+                  to="/profile"
                 >
                   <svg
                     className="shrink-0 size-4 me-3 md:me-2 block md:hidden"
@@ -142,139 +156,8 @@ function Navbar() {
                     <path d="M15 18h-5" />
                     <path d="M10 6h8v4h-8V6Z" />
                   </svg>
-                  Contact
-                </a>
-
-                {/* <!-- Dropdown --> */}
-                {/* <div className="hs-dropdown [--strategy:static] md:[--strategy:fixed] [--adaptive:none] [--is-collapse:true] md:[--is-collapse:false] ">
-                  <button
-                    id="hs-header-classic-dropdown"
-                    type="button"
-                    className="hs-dropdown-toggle w-full p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                    aria-haspopup="menu"
-                    aria-expanded="false"
-                    aria-label="Dropdown"
-                  >
-                    <svg
-                      className="shrink-0 size-4 me-3 md:me-2 block md:hidden"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m3 10 2.5-2.5L3 5" />
-                      <path d="m3 19 2.5-2.5L3 14" />
-                      <path d="M10 6h11" />
-                      <path d="M10 12h11" />
-                      <path d="M10 18h11" />
-                    </svg>
-                    Dropdown
-                    <svg
-                      className="hs-dropdown-open:-rotate-180 md:hs-dropdown-open:rotate-0 duration-300 shrink-0 size-4 ms-auto md:ms-1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </button>
-
-                  <div
-                    className="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] md:duration-[150ms] hs-dropdown-open:opacity-100 opacity-0 relative w-full md:w-52 hidden z-10 top-full ps-7 md:ps-0 md:bg-white md:rounded-lg md:shadow-md before:absolute before:-top-4 before:start-0 before:w-full before:h-5 md:after:hidden after:absolute after:top-1 after:start-[18px] after:w-0.5 after:h-[calc(100%-0.25rem)] after:bg-gray-100"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="hs-header-classic-dropdown"
-                  >
-                    <div className="py-1 md:px-1 space-y-0.5">
-                      <a
-                        className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        href="#"
-                      >
-                        About
-                      </a>
-
-                      <div className="hs-dropdown [--strategy:static] md:[--strategy:absolute] [--adaptive:none] md:[--trigger:hover] [--is-collapse:true] md:[--is-collapse:false] relative">
-                        <button
-                          id="hs-header-classic-dropdown-sub"
-                          type="button"
-                          className="hs-dropdown-toggle w-full py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        >
-                          Sub Menu
-                          <svg
-                            className="hs-dropdown-open:-rotate-180 md:hs-dropdown-open:-rotate-90 md:-rotate-90 duration-300 ms-auto shrink-0 size-4"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="m6 9 6 6 6-6" />
-                          </svg>
-                        </button>
-
-                        <div
-                          className="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] md:duration-[150ms] hs-dropdown-open:opacity-100 opacity-0 relative md:w-48 hidden z-10 md:mt-2 md:!mx-[10px] md:top-0 md:end-full ps-7 md:ps-0 md:bg-white md:rounded-lg md:shadow-md before:hidden md:before:block before:absolute before:-end-5 before:top-0 before:h-full before:w-5 md:after:hidden after:absolute after:top-1 after:start-[18px] after:w-0.5 after:h-[calc(100%-0.25rem)] after:bg-gray-100"
-                          role="menu"
-                          aria-orientation="vertical"
-                          aria-labelledby="hs-header-classic-dropdown-sub"
-                        >
-                          <div className="p-1 space-y-0.5 md:space-y-1">
-                            <a
-                              className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                              href="#"
-                            >
-                              About
-                            </a>
-
-                            <a
-                              className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                              href="#"
-                            >
-                              Downloads
-                            </a>
-
-                            <a
-                              className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                              href="#"
-                            >
-                              Team Account
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-
-                      <a
-                        className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        href="#"
-                      >
-                        Downloads
-                      </a>
-
-                      <a
-                        className="py-1.5 px-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        href="#"
-                      >
-                        Team Account
-                      </a>
-                    </div>
-                  </div>
-                </div> */}
-                {/* <!-- End Dropdown --> */}
+                  Profile
+                </Link>
 
                 {/* <!-- Button Group --> */}
                 <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
