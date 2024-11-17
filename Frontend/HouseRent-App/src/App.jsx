@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import Footers from "./Components/Footers.jsx";
 import HeroSection from "./Components/HeroSection.jsx";
 import Login from "./Pages/Login.jsx";
@@ -52,7 +53,7 @@ function App() {
           }
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/register" element={<SignUp />} />
         <Route path="/properties" element={<Properties />} />
         <Route path="/view" element={<ViewProperty />} />
         <Route path="/profile" element={<UserProfile />} />
@@ -64,9 +65,11 @@ function App() {
 
 function WrappedApp() {
   return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
