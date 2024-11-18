@@ -1,7 +1,143 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Toast from "../Components/ToastMessage.jsx";
+import { useNavigate } from "react-router-dom";
+
 function NewProperty() {
+  const [formData, setFormData] = useState({
+    userId: "", // userId will be set from localStorage
+    address: "",
+    city: "",
+    rentAmount: "",
+    propertyType: "",
+    description: "",
+    locationLink: "",
+    image: null, // For storing the uploaded image
+    postedDate: "",
+  });
+
+  const [toast, setToast] = useState({ message: "", type: "" });
+
+  const navigate = useNavigate();
+
+  // Fetch the userId from localStorage when the component mounts
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+    if (storedUserId) {
+      setFormData((prevData) => ({
+        ...prevData,
+        userId: storedUserId,
+      }));
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "image") {
+      // Handle image file upload
+      setFormData((prevData) => ({
+        ...prevData,
+        image: e.target.files[0],
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const {
+      userId,
+      address,
+      city,
+      rentAmount,
+      propertyType,
+      description,
+      locationLink,
+      image,
+      postedDate,
+    } = formData;
+
+    if (
+      !userId ||
+      !address ||
+      !city ||
+      !rentAmount ||
+      !propertyType ||
+      !description ||
+      !postedDate ||
+      !image
+    ) {
+      showToast("All fields are required", "error");
+      return;
+    }
+
+    try {
+      const data = new FormData();
+      data.append("userId", userId);
+      data.append("address", address);
+      data.append("city", city);
+      data.append("rentAmount", rentAmount);
+      data.append("propertyType", propertyType);
+      data.append("description", description);
+      data.append("locationLink", locationLink);
+      data.append("image", image);
+      data.append("postedDate", postedDate);
+
+      console.log(data);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/properties/addProperty`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        showToast("Property added successfully!", "success");
+        setFormData({
+          userId: "", // Reset userId
+          address: "",
+          city: "",
+          rentAmount: "",
+          propertyType: "",
+          description: "",
+          locationLink: "",
+          image: null,
+          postedDate: "",
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
+      } else {
+        showToast(response.data || "Failed to add property", "error");
+      }
+    } catch (error) {
+      showToast(
+        error.response?.data || "Unable to connect to the server",
+        "error"
+      );
+    }
+  };
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast({ message: "", type: "" });
+    }, 1500);
+  };
+
   return (
     <>
-      {/* New Property Form */}
+      <Toast message={toast.message} type={toast.type} />
+
       <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
         <div className="max-w-xl mx-auto">
           <div className="text-center">
@@ -13,10 +149,9 @@ function NewProperty() {
             </p>
           </div>
           <div className="mt-12">
-            {/* Form */}
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="grid gap-4 lg:gap-6">
-                {/* Address Details */}
+                {/* Removed userId input field */}
                 <div>
                   <label
                     htmlFor="address"
@@ -28,12 +163,12 @@ function NewProperty() {
                     type="text"
                     name="address"
                     id="address"
-                    placeholder="e.g., No 123, ABC Street, Chennai, Tamilnadu 600034"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="e.g., No 123, ABC Street, Chennai"
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                {/* City */}
                 <div>
                   <label
                     htmlFor="city"
@@ -42,8 +177,10 @@ function NewProperty() {
                     City
                   </label>
                   <select
-                    id="city"
                     name="city"
+                    id="city"
+                    value={formData.city}
+                    onChange={handleChange}
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     <option value="">Select City</option>
@@ -51,38 +188,38 @@ function NewProperty() {
                     <option value="Bengaluru">Bengaluru</option>
                     <option value="Kerala">Kerala</option>
                     <option value="Delhi">Delhi</option>
-                    <option>Mumbai</option>
+                    <option value="Mumbai">Mumbai</option>
                   </select>
                 </div>
-
-                {/* Rent Amount */}
                 <div>
                   <label
-                    htmlFor="rent-amount"
+                    htmlFor="rentAmount"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
                     Rent Amount (in &#8377;)
                   </label>
                   <input
                     type="number"
-                    name="rent-amount"
-                    id="rent-amount"
+                    name="rentAmount"
+                    id="rentAmount"
+                    value={formData.rentAmount}
+                    onChange={handleChange}
                     placeholder="e.g., 15000"
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                {/* Property Type */}
                 <div>
                   <label
-                    htmlFor="property-type"
+                    htmlFor="propertyType"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
                     Property Type
                   </label>
                   <select
-                    id="property-type"
-                    name="property-type"
+                    name="propertyType"
+                    id="propertyType"
+                    value={formData.propertyType}
+                    onChange={handleChange}
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     <option value="">Select Type</option>
@@ -93,102 +230,85 @@ function NewProperty() {
                     <option value="4BHK">4BHK</option>
                   </select>
                 </div>
-
-                {/* Property Description */}
                 <div>
                   <label
-                    htmlFor="property-description"
+                    htmlFor="description"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
-                    Property Description
+                    Description
                   </label>
                   <textarea
-                    id="property-description"
-                    name="property-description"
+                    name="description"
+                    id="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="e.g., A beautiful 3-bedroom apartment"
                     rows={4}
-                    placeholder="e.g., A beautiful 3-bedroom apartment with spacious living area"
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                {/* Location Link */}
                 <div>
                   <label
-                    htmlFor="location-link"
+                    htmlFor="locationLink"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
                     Google Maps Link
                   </label>
                   <input
                     type="url"
-                    name="location-link"
-                    id="location-link"
+                    name="locationLink"
+                    id="locationLink"
+                    value={formData.locationLink}
+                    onChange={handleChange}
                     placeholder="e.g., https://maps.google.com/?q=..."
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                {/* Property Image */}
                 <div>
                   <label
-                    htmlFor="property-image"
+                    htmlFor="image"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
                     Property Image
                   </label>
                   <input
                     type="file"
-                    name="property-image"
-                    id="property-image"
+                    name="image"
+                    id="image"
                     accept="image/*"
-                    className="block w-full text-sm text-gray-600
-                            file:me-4 file:py-2 file:px-4
-                            file:rounded-lg file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-blue-600 file:text-white
-                            hover:file:bg-blue-700
-                            file:disabled:opacity-50 file:disabled:pointer-events-none
-                          focus:border-blue-500 focus:ring-blue-500"
+                    onChange={handleChange}
+                    className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                {/* Posted Date */}
                 <div>
                   <label
-                    htmlFor="posted-date"
+                    htmlFor="postedDate"
                     className="block mb-2 text-sm text-gray-700 font-medium"
                   >
                     Posted Date
                   </label>
                   <input
                     type="date"
-                    name="posted-date"
-                    id="posted-date"
+                    name="postedDate"
+                    id="postedDate"
+                    value={formData.postedDate}
+                    onChange={handleChange}
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
-
-              {/* Submit Button */}
-              <div className="mt-6 grid">
+              <div className="mt-6">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-gradient-to-tl from-blue-600 to-violet-600 text-white  focus:outline-none hover:from-violet-600 hover:to-blue-600"
+                  className="w-full py-3 px-4 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700"
                 >
                   Post Property
                 </button>
               </div>
-              <div className="mt-3 text-center">
-                <p className="text-sm text-gray-500">
-                  Your property will be reviewed before it goes live.
-                </p>
-              </div>
             </form>
-            {/* End Form */}
           </div>
         </div>
       </div>
-      {/* End New Property Form */}
     </>
   );
 }
