@@ -28,16 +28,17 @@ const propertySchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
+    trim: true,
   },
   locationLink: {
-    type: String, // Optional location link
+    type: String, 
   },
   postedDate: {
     type: Date,
     required: true,
   },
   image: {
-    type: String, // Cloudinary URL or similar
+    type: String, // Cloudinary URL
     required: true,
   },
 });

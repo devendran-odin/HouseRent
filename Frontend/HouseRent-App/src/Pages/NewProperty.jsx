@@ -114,7 +114,7 @@ function NewProperty() {
           postedDate: "",
         });
         setTimeout(() => {
-          navigate("/");
+          navigate("/properties");
         }, 3000);
       } else {
         showToast(response.data || "Failed to add property", "error");
@@ -172,7 +172,7 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="city"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     City
                   </label>
@@ -194,7 +194,7 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="rentAmount"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Rent Amount (in &#8377;)
                   </label>
@@ -211,7 +211,7 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="propertyType"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Property Type
                   </label>
@@ -233,7 +233,7 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="description"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Description
                   </label>
@@ -250,7 +250,7 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="locationLink"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Google Maps Link
                   </label>
@@ -267,23 +267,37 @@ function NewProperty() {
                 <div>
                   <label
                     htmlFor="image"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Property Image
                   </label>
-                  <input
+                  {/* <input
                     type="file"
                     name="image"
                     id="image"
                     accept="image/*"
                     onChange={handleChange}
                     className="py-3 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                  /> */}
+                  <input
+                    type="file"
+                    name="image"
+                    id="image"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="block w-full text-sm text-gray-500
+                        file:me-4 file:py-2 file:px-4
+                        file:rounded-lg file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-500 file:text-white
+                        hover:file:bg-blue-600
+                        file:disabled:opacity-50 file:disabled:pointer-events-none"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="postedDate"
-                    className="block mb-2 text-sm text-gray-700 font-medium"
+                    className="block mt-1.5 md:mt-1 lg:mt-0 mb-2 text-sm text-gray-700 font-medium"
                   >
                     Posted Date
                   </label>
@@ -297,10 +311,10 @@ function NewProperty() {
                   />
                 </div>
               </div>
-              <div className="mt-6">
+              <div className="mt-7">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700"
+                  className="w-full bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:from-violet-600 focus:to-blue-600 border border-transparent text-white text-md font-medium rounded-md py-3 px-4 "
                 >
                   Post Property
                 </button>

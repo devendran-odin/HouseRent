@@ -55,7 +55,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<SignUp />} />
         <Route path="/properties" element={<Properties />} />
-        <Route path="/view" element={<ViewProperty />} />
+        <Route path="/view/:id" element={<ViewProperty />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="*" element={<Error />} />
       </Routes>
