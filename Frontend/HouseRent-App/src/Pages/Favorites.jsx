@@ -1,14 +1,75 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Toast from "../Components/ToastMessage.jsx";
+
 function Favorites() {
+  const [wishlist, setWishlist] = useState([]);
+  const [toast, setToast] = useState({ message: "", type: "" });
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("authToken");
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/wishlist/getAll`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setWishlist(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching wishlist:", error);
+      });
+  }, []);
+
+  const handleRemove = (propertyId) => {
+    // Make DELETE request to remove from wishlist
+    axios
+      .delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/${propertyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token
+          },
+        }
+      )
+      .then((response) => {
+        setWishlist(wishlist.filter((property) => property._id !== propertyId));
+        if (response.status === 200) {
+          showToast(response.data.message, "success");
+        }
+      })
+      .catch((error) => {
+        console.error("Error removing property:", error);
+      });
+  };
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+
+    // Clear toast after 5 seconds
+    setTimeout(() => {
+      setToast({ message: "", type: "" });
+    }, 2000);
+  };
+
+  const handleMoreInfo = (propertyId) => {
+    // Navigate to property detail page
+    navigate(`/view/${propertyId}`);
+  };
+
   return (
     <>
-      {/* <!-- Table Section --> */}
+      <Toast message={toast.message} type={toast.type} />
+      {/* Table Section */}
       <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-        {/* <!-- Card --> */}
         <div className="flex flex-col">
           <div className="-m-1.5 overflow-x-auto">
             <div className="p-1.5 min-w-full inline-block align-middle">
               <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                {/* <!-- Table --> */}
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
@@ -47,174 +108,80 @@ function Favorites() {
                   </thead>
 
                   <tbody className="divide-y divide-gray-200">
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-800">
-                                Christina Bersh
-                              </span>
-                              <span className="block text-sm text-gray-500">
-                                christina@site.com
-                              </span>
+                    {wishlist.map((property) => (
+                      <tr
+                        key={property._id}
+                        className="bg-white hover:bg-gray-50"
+                      >
+                        <td className="size-px whitespace-nowrap align-middle">
+                          <div className="block p-6">
+                            <div className="flex items-center gap-x-3">
+                              <div className="grow">
+                                <span className="block text-sm font-semibold text-gray-800">
+                                  {property.userId.userName}
+                                </span>
+                                <span className="block text-sm text-gray-500">
+                                  {property.userId.userEmail}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </a>
-                      </td>
+                        </td>
 
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            &#8377;12,000
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
-                            More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                              />
-                            </svg>
-                            Remove
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
-
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-800">
-                                David Harrison
-                              </span>
-                              <span className="block text-sm text-gray-500">
-                                david@site.com
-                              </span>
-                            </div>
+                        <td className="size-px whitespace-nowrap align-middle">
+                          <div className="block p-6">
+                            <span className="text-sm text-gray-800">
+                              &#8377;{property.rentAmount}
+                            </span>
                           </div>
-                        </a>
-                      </td>
+                        </td>
 
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            &#8377;25,000
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
-                            More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                              />
-                            </svg>
-                            Remove
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
-
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-800">
-                                Anne Richard
-                              </span>
-                              <span className="block text-sm text-gray-500">
-                                anne@site.com
-                              </span>
-                            </div>
+                        <td className="size-px whitespace-nowrap align-middle">
+                          <div
+                            className="block p-6 cursor-pointer"
+                            onClick={() => handleMoreInfo(property._id)}
+                          >
+                            <span className="md:text-[15px] text-blue-600 hover:underline">
+                              More Info
+                            </span>
                           </div>
-                        </a>
-                      </td>
+                        </td>
 
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            &#8377;20,000
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
-                            More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                              />
-                            </svg>
-                            Remove
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
+                        <td className="size-px whitespace-nowrap align-middle">
+                          <div
+                            className="block p-6 cursor-pointer"
+                            onClick={() => handleRemove(property._id)}
+                          >
+                            <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                                className="size-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                />
+                              </svg>
+                              Remove
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-                {/* <!-- End Table --> */}
+                {/* End Table */}
               </div>
             </div>
           </div>
         </div>
-        {/* <!-- End Card --> */}
       </div>
-      {/* <!-- End Table Section --> */}
+      {/* End Table Section */}
     </>
   );
 }

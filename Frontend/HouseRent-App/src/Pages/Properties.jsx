@@ -9,12 +9,14 @@ function Properties() {
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [error, setError] = useState(null); // State to handle errors
 
+  const userId = localStorage.getItem("userId");
+
   // Fetch properties from the backend
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/properties/getAllProperty"
+          `${import.meta.env.VITE_BACKEND_URL}/api/properties/getAllProperty`
         ); // Replace with your backend URL
         setProperties(response.data); // Assuming the API returns an array of properties
       } catch (err) {
@@ -93,7 +95,7 @@ function Properties() {
                 href="#"
                 className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center"
               >
-                <Bookmark />
+                <Bookmark propertyId={property._id} userId={userId} />
                 <span className="ml-1">Add to Favorites</span>
               </span>
               <span

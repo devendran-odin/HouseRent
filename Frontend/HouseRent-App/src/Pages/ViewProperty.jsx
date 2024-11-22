@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"; // To get the id from the URL
 import axios from "axios"; // For making API calls
-import HomeImg from "../assets/home-img.jpg"; // Replace with dynamic images if available
+import Toast from "../Components/ToastMessage.jsx";
+import HomeImg from "../assets/home-img.jpg";
 
 function ViewProperty() {
   const { id } = useParams(); // Get the property id from URL
   const [property, setProperty] = useState(null); // State to store property data
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [error, setError] = useState(null); // State to handle errors
+  const [toast, setToast] = useState({ message: "", type: "" });
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast({ message: "", type: "" });
+    }, 2000);
+  };
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/properties/${id}` // Fetch data for the specific property
+          `${import.meta.env.VITE_BACKEND_URL}/api/properties/${id}` // Fetch data for the specific property
         );
         setProperty(response.data); // Store the property data
       } catch (err) {
@@ -40,9 +49,35 @@ function ViewProperty() {
     );
   }
 
+  const userId = localStorage.getItem("userId");
+
+  const handleFavorites = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/add`,
+        {
+          userId,
+          propertyId: property._id,
+        }
+      );
+
+      if (response.status == 200) {
+        showToast(response.data.message, "success");
+      }
+    } catch (err) {
+      // Check for specific error message
+      if (err.response && err.response.data.message) {
+        showToast(err.response.data.message, "error");
+      } else {
+        // Generic error message
+        showToast("An error occurred. Please try again.", "error");
+      }
+    }
+  };
   return (
     <>
       {/* Hero */}
+      <Toast message={toast.message} type={toast.type} />
       <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 mt-6 lg:mt-16 mb-7 ">
         {/* Grid */}
         <div className="grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-12 lg:items-center ">
@@ -122,7 +157,10 @@ function ViewProperty() {
                 ? formatDate(property.postedDate)
                 : "Date not available"}
             </p>
-            <button className="py-3 px-3 my-4 lg:my-5 w-full items-center hover:text-gray-700 text-[16px] hover:border-green-600 font-medium rounded-lg border border-black disabled:opacity-50 disabled:pointer-events-none">
+            <button
+              className="py-3 px-3 my-4 lg:my-5 w-full items-center hover:text-gray-700 text-[16px] hover:border-green-600 font-medium rounded-lg border border-black disabled:opacity-50 disabled:pointer-events-none"
+              onClick={handleFavorites}
+            >
               Add to Favorites
             </button>
             <button className="py-3 px-3 mt-1 lg:mt-2 w-full items-center text-[16px] font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">

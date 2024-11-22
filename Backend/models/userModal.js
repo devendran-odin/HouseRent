@@ -17,7 +17,14 @@ const userSchema = new mongoose.Schema({
     userPassword: {
       type: String,
       required: [true, 'Password is required'],  // Validation message
-    }
+    },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Property',
+        unique: true, // Prevents duplicate properties in the wishlist
+      },
+    ],
   });
 
 
