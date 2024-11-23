@@ -3,35 +3,35 @@ import Property from "../models/propertyModal.js";
 
 export const addWishlist = async (req, res) => {
     const { userId, propertyId } = req.body;
+    try {
+      // Find the property
+      const property = await Property.findById(propertyId);
+      if (!property) {
+        return res.status(404).json({ message: 'Property not found' });
+      }
 
-  try {
-    // Find the property
-    const property = await Property.findById(propertyId);
-    if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
+      // Find the user and check if the property is already in their wishlist
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Login to add wishlist' });
+      }
+
+      if (user.wishlist.includes(propertyId)) {
+        return res.status(400).json({ message: 'Property already added to wishlist' });
+      }
+
+      // Add the property to the user's wishlist
+      user.wishlist.push(propertyId);
+      await user.save();
+
+      return res.status(200).json({ message: 'Property added to wishlist', user });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
     }
-
-    // Find the user and check if the property is already in their wishlist
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Login to add wishlist' });
-    }
-
-    if (user.wishlist.includes(propertyId)) {
-      return res.status(400).json({ message: 'Property already added to wishlist' });
-    }
-
-    // Add the property to the user's wishlist
-    user.wishlist.push(propertyId);
-    await user.save();
-
-    return res.status(200).json({ message: 'Property added to wishlist', user });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server error' });
-  }
 }
 
+// GET all the wihslist based on userId
 export const getAllWishlist = async (req, res) => {
     try {
         const userId = req.user.userId; // Extracted from token
@@ -54,8 +54,6 @@ export const getAllWishlist = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
       }
 }
-
-
 
 
 // DELETE wishlist item

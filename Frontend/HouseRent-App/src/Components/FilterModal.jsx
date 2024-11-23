@@ -1,17 +1,52 @@
-function FilterModal() {
+import React, { useState } from "react";
+import Toast from "./ToastMessage.jsx";
+
+function FilterModal({ onApplyFilters }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toast, setToast] = useState({ message: "", type: "" });
+  const [filters, setFilters] = useState({
+    bhk: "",
+    location: "",
+    priceRange: "",
+  });
+
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
+
+  const applyFilters = () => {
+    // Check if all fields are selected
+    const { bhk, location, priceRange } = filters;
+    if (bhk && location && priceRange) {
+      onApplyFilters(filters); // Pass the filters to the parent component
+      setIsModalOpen(false); // Close the modal
+    } else {
+      showToast("All filters are required.", "error");
+    }
+  };
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+
+    // Clear toast after 5 seconds
+    setTimeout(() => {
+      setToast({ message: "", type: "" });
+    }, 2000);
+  };
+
   return (
     <>
-      {" "}
-      {/* <!-- Buttons --> */}
+      <Toast message={toast.message} type={toast.type} />
+      {/* Filter Button */}
       <div className="mt-8 gap-3 flex justify-center">
         <div className="text-center">
           <button
             type="button"
-            className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:from-violet-600 focus:to-blue-600 border border-transparent text-white text-sm font-medium rounded-full py-3 px-4 disabled:opacity-50 disabled:pointer-events-none"
-            aria-haspopup="dialog"
-            aria-expanded="false"
-            aria-controls="hs-notifications"
-            data-hs-overlay="#hs-notifications"
+            className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-violet-500 border border-transparent text-white text-sm font-medium rounded-xl py-3 px-4 disabled:opacity-50 disabled:pointer-events-none"
+            onClick={toggleModal}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +54,7 @@ function FilterModal() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="size-6"
+              className="h-5 w-5 md:w-6 md:h-6"
             >
               <path
                 strokeLinecap="round"
@@ -31,70 +66,57 @@ function FilterModal() {
           </button>
         </div>
       </div>
-      {/* <!-- End Buttons --> */}
-      <div
-        id="hs-notifications"
-        className="hs-overlay hidden size-full fixed top-0 start-0 z-[100] overflow-x-hidden overflow-y-auto"
-        role="dialog"
-        tabIndex="-1"
-        aria-labelledby="hs-notifications-label"
-      >
-        <div className="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto ">
-          <div className="relative flex flex-col bg-white border shadow-sm rounded-xl overflow-hidden">
-            <div className="absolute top-2 end-2">
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed  inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+        >
+          <div className="relative flex flex-col bg-white border shadow-sm rounded-xl overflow-hidden sm:max-w-md sm:w-full">
+            {/* Close Button */}
+            <div className="absolute top-2 right-2">
               <button
                 type="button"
-                className="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none"
-                aria-label="Close"
-                data-hs-overlay="#hs-notifications"
+                className="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                onClick={toggleModal}
               >
-                <span className="sr-only">Close</span>
                 <svg
-                  className="shrink-0 size-4"
+                  className="w-4 h-4"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
                   fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeWidth={2}
                 >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
+                  <path d="M18 6L6 18" />
+                  <path d="M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="p-4 sm:p-10 overflow-y-auto">
-              <div className="mb-6 text-center">
-                <h3
-                  id="hs-notifications-label"
-                  className="mb-2 text-xl font-bold text-gray-800"
-                >
+            <div className="p-4 sm:p-10">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">
                   Filter Preferences
                 </h3>
                 <p className="text-gray-500">
                   Refine your search based on your requirements
                 </p>
               </div>
-              {/* Choice list */}
+
+              {/* Filters */}
               <div className="space-y-4">
-                {/* BHK select */}
+                {/* BHK Type */}
                 <div>
-                  <p className="text-gray-600 ml-3 py-1">BHK Type</p>
+                  <label className="text-gray-600 ml-3 py-1 block">
+                    BHK Type
+                  </label>
                   <select
-                    data-hs-select='{
-                            "placeholder": "Select option...",
-                            "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
-                            "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
-                            "dropdownClasses": "mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300",
-                            "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100 hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50",
-                            "optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"hidden hs-selected:block\"><svg class=\"shrink-0 size-3.5 text-blue-600 \" xmlns=\"http:.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg></span></div>",
-                            "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 \" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
-                            }'
-                    className="hidden"
+                    name="bhk"
+                    value={filters.bhk}
+                    onChange={handleChange}
+                    className="w-full py-3 px-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Choose</option>
                     <option>1 RK</option>
@@ -104,20 +126,17 @@ function FilterModal() {
                     <option>4 BHK</option>
                   </select>
                 </div>
-                {/* Location select */}
+
+                {/* Location */}
                 <div>
-                  <p className="text-gray-600 ml-3 py-1">Location</p>
+                  <label className="text-gray-600 ml-3 py-1 block">
+                    Location
+                  </label>
                   <select
-                    data-hs-select='{
-                            "placeholder": "Select option...",
-                            "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
-                            "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
-                            "dropdownClasses": "mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300",
-                            "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100 hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50",
-                            "optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"hidden hs-selected:block\"><svg class=\"shrink-0 size-3.5 text-blue-600 \" xmlns=\"http:.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg></span></div>",
-                            "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 \" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
-                            }'
-                    className="hidden"
+                    name="location"
+                    value={filters.location}
+                    onChange={handleChange}
+                    className="w-full py-3 px-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Choose</option>
                     <option>Chennai</option>
@@ -127,20 +146,17 @@ function FilterModal() {
                     <option>Mumbai</option>
                   </select>
                 </div>
-                {/* Price Range select */}
+
+                {/* Price Range */}
                 <div>
-                  <p className="text-gray-600 ml-3 py-1">Price Range</p>
+                  <label className="text-gray-600 ml-3 py-1 block">
+                    Price Range
+                  </label>
                   <select
-                    data-hs-select='{
-                          "placeholder": "Select option...",
-                          "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
-                          "toggleClasses": "hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
-                          "dropdownClasses": "mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300",
-                          "optionClasses": "py-2 px-4 w-full text-sm text-gray-800 cursor-pointer hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100 hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50",
-                          "optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"hidden hs-selected:block\"><svg class=\"shrink-0 size-3.5 text-blue-600 \" xmlns=\"http:.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg></span></div>",
-                          "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 \" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
-                          }'
-                    className="hidden"
+                    name="priceRange"
+                    value={filters.priceRange}
+                    onChange={handleChange}
+                    className="w-full py-3 px-4 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Choose</option>
                     <option value="2000-6000">₹2,000 - ₹6,000</option>
@@ -153,24 +169,25 @@ function FilterModal() {
               </div>
             </div>
 
+            {/* Modal Actions */}
             <div className="flex justify-end items-center gap-x-2 py-3 px-4 bg-gray-50 border-t">
               <button
                 type="button"
-                className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:bg-gray-50"
-                data-hs-overlay="#hs-notifications"
+                className="py-2 px-3 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 focus:outline-none"
+                onClick={toggleModal}
               >
                 Cancel
               </button>
-              <a
-                className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white  focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-                href="#"
+              <button
+                className="py-2 px-3 text-sm font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white hover:from-violet-600 hover:to-blue-600 focus:outline-none"
+                onClick={applyFilters}
               >
                 Apply Filters
-              </a>
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

@@ -55,7 +55,29 @@ function HeroSection() {
             </p>
           </div>
 
-          <FilterModal />
+          <div className="flex justify-center mt-6">
+            <Link
+              type="button"
+              className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-violet-500 border border-transparent text-white text-[15px] font-medium rounded-xl py-3 px-4 md:px-6 disabled:opacity-50 disabled:pointer-events-none"
+              to="/properties"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.6}
+                stroke="currentColor"
+                className="size-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                />
+              </svg>
+              Search Properties
+            </Link>
+          </div>
         </div>
       </div>
       {/* <!-- End Hero --> */}

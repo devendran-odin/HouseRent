@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { addProperty, getAllProperty, getPropertyByID } from "../controllers/propertyController.js";
+import { addProperty, getAllProperty, getPropertyByID, filterProperty } from "../controllers/propertyController.js";
 
 const router = express.Router();
 
@@ -23,5 +23,7 @@ router.post("/addProperty", upload.single("image"), addProperty);
 router.get("/getAllProperty", getAllProperty)
 
 router.get("/:id", getPropertyByID)
+
+router.post("/filters", filterProperty)
 
 export default router;

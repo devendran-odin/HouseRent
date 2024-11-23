@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // For making API calls
-import HomeImg from "../assets/home-img.jpg"; // Replace with dynamic images if available
+import axios from "axios";
+import HomeImg from "../assets/home-img.jpg";
 import Bookmark from "../Components/Bookmark";
 import { Link } from "react-router-dom";
+import FilterModal from "../Components/FilterModal";
 
 function Properties() {
   const [properties, setProperties] = useState([]); // State to store properties data
@@ -10,6 +11,22 @@ function Properties() {
   const [error, setError] = useState(null); // State to handle errors
 
   const userId = localStorage.getItem("userId");
+
+  // Fetch properties based on filters
+  const fetchFilteredProperties = async (filters) => {
+    try {
+      setLoading(true); // Show loader
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/properties/filters`,
+        filters
+      );
+      setProperties(response.data); // Update state with filtered properties
+    } catch (err) {
+      setError("Failed to fetch properties. Please try again.");
+    } finally {
+      setLoading(false); // Hide loader
+    }
+  };
 
   // Fetch properties from the backend
   useEffect(() => {
@@ -38,9 +55,10 @@ function Properties() {
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
-      <div className="border-b mb-6 mt-6 flex justify-between text-sm">
-        <div className="text-indigo-600 flex items-center pb-2 pr-2 border-b-2 border-indigo-600 uppercase">
+    <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-12">
+      <div className="mt-8 mb-8 md:mt-0 flex flex-wrap items-center justify-between text-sm md:border-b-2">
+        {/* Left Section */}
+        <div className="flex items-center justify-center md:mt-2 pb-2 pr-2 border-b-2 border-indigo-600 uppercase text-indigo-600 w-fit md:w-auto">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -57,59 +75,70 @@ function Properties() {
           </svg>
           <span className="font-semibold inline-block">Properties Posted</span>
         </div>
-        <a href="#">See All</a>
+        {/* Right Section */}
+        <div className="flex w-fit justify-center items-center md:mb-6 md:mt-0 md:w-auto">
+          <FilterModal onApplyFilters={fetchFilteredProperties} />
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-        {properties.map((property) => (
-          <div
-            key={property._id}
-            className="rounded overflow-hidden shadow-lg flex flex-col bg-white"
-          >
-            <Link to={`/view/${property._id}`}>
-              <div className="relative">
-                <img
-                  className="w-full h-48 lg:h-56 object-cover"
-                  src={property.image || HomeImg} // Fallback to a static image
-                  alt={property.address || "Property"}
-                />
-                <div className="hover:bg-transparent transition duration-300 absolute bottom-0 top-0 right-0 left-0 bg-gray-500 opacity-15"></div>
+
+      {/* Conditional Rendering for Empty Properties */}
+      {properties.length === 0 ? (
+        <div className="text-center text-lg text-gray-500 p-5">
+          No properties found. Try adjusting your filters.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+          {properties.map((property) => (
+            <div
+              key={property._id}
+              className="rounded overflow-hidden shadow-lg flex flex-col bg-white"
+            >
+              <Link to={`/view/${property._id}`}>
+                <div className="relative">
+                  <img
+                    className="w-full h-48 lg:h-56 object-cover"
+                    src={property.image || HomeImg} // Fallback to a static image
+                    alt={property.address || "Property"}
+                  />
+                  <div className="hover:bg-transparent transition duration-300 absolute bottom-0 top-0 right-0 left-0 bg-gray-500 opacity-15"></div>
+                </div>
+              </Link>
+              <div className="px-6 py-4 mb-auto">
+                <a
+                  href="#"
+                  className="font-medium text-lg inline-block hover:text-indigo-600 transition duration-500 ease-in-out mb-2"
+                >
+                  {new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(property.rentAmount)}{" "}
+                  Per Month
+                </a>
+                <p className="text-gray-500 text-sm">{property.description}</p>
               </div>
-            </Link>
-            <div className="px-6 py-4 mb-auto">
-              <a
-                href="#"
-                className="font-medium text-lg inline-block hover:text-indigo-600 transition duration-500 ease-in-out mb-2"
-              >
-                {new Intl.NumberFormat("en-IN", {
-                  style: "currency",
-                  currency: "INR",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(property.rentAmount)}{" "}
-                Per Month
-              </a>
-              <p className="text-gray-500 text-sm">{property.description}</p>
-            </div>
-            <div className="px-3 md:px-6 py-2 flex flex-row items-center justify-between bg-gray-100">
-              <span
-                href="#"
-                className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center"
-              >
-                <Bookmark propertyId={property._id} userId={userId} />
-                <span className="ml-1">Add to Favorites</span>
-              </span>
-              <span
-                onClick={() => handleRequestBooking(property.id)}
-                className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center"
-              >
-                <span className="ml-1 bg-gradient-to-tl from-blue-600 to-violet-600 text-white  focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 py-2 md:py-2.5 px-3 rounded-md hover:cursor-pointer">
-                  Request to Book
+              <div className="px-3 md:px-6 py-2 flex flex-row items-center justify-between bg-gray-100">
+                <span
+                  href="#"
+                  className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center"
+                >
+                  <Bookmark propertyId={property._id} userId={userId} />
+                  <span className="ml-1">Add to Favorites</span>
                 </span>
-              </span>
+                <span
+                  onClick={() => handleRequestBooking(property.id)}
+                  className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center"
+                >
+                  <span className="ml-1 bg-gradient-to-tl from-blue-600 to-violet-600 text-white  focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 py-2 md:py-2.5 px-3 rounded-md hover:cursor-pointer">
+                    Request to Book
+                  </span>
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 

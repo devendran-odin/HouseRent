@@ -70,3 +70,29 @@ export const getPropertyByID = async(req, res) => {
       }
     
 }
+
+export const filterProperty = async (req, res) => {
+    const { bhk, location, priceRange } = req.body;
+  
+    if (!bhk || !location || !priceRange) {
+      return res.status(400).json({ error: "All filters are required." });
+    }
+    try {
+      // Normalize bhk to match database format
+      const normalizedBhk = bhk.replace(/\s+/g, ""); //Removes spaces, eg "1 BHK" -> "1BHK"
+      const [minPrice, maxPrice] = priceRange.split("-").map(Number);
+
+      // Query the database
+      const filteredProperties = await Property.find({
+        propertyType: normalizedBhk,
+        city: location,
+        rentAmount: { $gte: minPrice, $lte: maxPrice },
+      });
+
+      res.status(200).json(filteredProperties);
+
+    } catch (error) {
+      console.error("Error filtering properties:", error);
+      res.status(500).json({ error: "Server error while filtering properties." });
+    }
+};

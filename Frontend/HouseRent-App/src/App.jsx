@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useRef } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import Footers from "./Components/Footers.jsx";
 import HeroSection from "./Components/HeroSection.jsx";
@@ -16,19 +16,6 @@ import Stackedcards from "./Components/Stackedcards.jsx";
 import Enquire from "./Components/Enquire.jsx";
 
 function App() {
-  const location = useLocation();
-
-  useEffect(() => {
-    // If on the main page ("/") and the user has visited other routes before
-    if (location.pathname === "/" && sessionStorage.getItem("visited")) {
-      window.location.reload();
-      sessionStorage.removeItem("visited"); // Remove the flag after reloading
-    } else if (location.pathname !== "/") {
-      // Set "visited" flag when visiting any other route
-      sessionStorage.setItem("visited", "true");
-    }
-  }, [location.pathname]);
-
   const stepsRef = useRef(null);
 
   const scrollToSteps = () => {
