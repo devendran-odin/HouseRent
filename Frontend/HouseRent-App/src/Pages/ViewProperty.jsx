@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"; // To get the id from the URL
 import axios from "axios"; // For making API calls
 import Toast from "../Components/ToastMessage.jsx";
 import HomeImg from "../assets/home-img.jpg";
+import { handleRequestBooking } from "./Properties.jsx";
 
 function ViewProperty() {
   const { id } = useParams(); // Get the property id from URL
@@ -163,7 +164,10 @@ function ViewProperty() {
             >
               Add to Favorites
             </button>
-            <button className="py-3 px-3 mt-1 lg:mt-2 w-full items-center text-[16px] font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            <button
+              className="py-3 px-3 mt-1 lg:mt-2 w-full items-center text-[16px] font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+              onClick={() => handleRequestBooking(property._id, showToast)}
+            >
               Request to Book
             </button>
           </div>

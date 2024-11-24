@@ -58,7 +58,7 @@ function HeroSection() {
           <div className="flex justify-center mt-6">
             <Link
               type="button"
-              className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-violet-500 border border-transparent text-white text-[15px] font-medium rounded-xl py-3 px-4 md:px-6 disabled:opacity-50 disabled:pointer-events-none"
+              className="inline-flex justify-center items-center gap-x-3 text-center bg-gradient-to-tl from-blue-600 to-violet-600 hover:from-violet-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-violet-500 border border-transparent text-white text-[14px] font-medium rounded-xl py-3 px-4 md:px-6 disabled:opacity-50 disabled:pointer-events-none"
               to="/properties"
             >
               <svg
