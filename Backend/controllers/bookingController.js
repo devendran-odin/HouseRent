@@ -1,11 +1,78 @@
 import Booking from "../models/bookingModal.js"
 import Property from "../models/propertyModal.js"
 
+// Fetch booking approvals
+export const getApprovals = async (req, res) => {
+  try {
+    const  ownerId  = req.user.userId;
+    if (!ownerId) {
+      return res.status(400).json({ message: "Owner ID is required." });
+    }
+
+    const bookings = await Booking.find({ ownerId, status: "Pending" })
+      .populate("propertyId", "_id") 
+      .populate("requesterId", "userName userEmail");
+
+     const tenantBookings =  bookings.map((booking) => ({
+        _id: booking._id,
+        tenantId:booking.requesterId._id,
+        tenantName: booking.requesterId.userName,
+        tenantEmail: booking.requesterId.userEmail,
+        propertyId: booking.propertyId._id,
+        requestedDate: booking.createdAt,
+      }))
+      
+    res.status(200).json(tenantBookings);
+  } catch (error) {
+    console.error("Error fetching approvals:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Accept booking
+export const acceptBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.bookingId;
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found." });
+    }
+
+    booking.status = "Accepted";
+
+    await booking.save();
+    res.status(200).json({ message: "Booking accepted successfully." });
+  } catch (error) {
+    console.error("Error accepting booking:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Reject booking
+export const rejectBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.bookingId;
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found." });
+    }
+    booking.status = "Rejected";
+
+    await booking.save();
+    res.status(200).json({ message: "Booking rejected successfully." });
+  } catch (error) {
+    console.error("Error rejecting booking:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+
 export const getBookings = async (req, res) => {
     try {
       const bookings = await Booking.find({ requesterId: req.user.userId })
-        .populate("ownerId", "userName userEmail") // Populate owner's name and email
-        .populate("propertyId", "_id"); // Include property ID
+        .populate("ownerId", "userName userEmail") 
+        .populate("propertyId", "_id")
         
       // Transform response to include necessary details
       const transformedBookings = bookings.map((booking) => ({
@@ -25,8 +92,6 @@ export const getBookings = async (req, res) => {
     }
   };
   
-
-
 
 export const handleBookingRequest = async (req, res) => {
     const { propertyId, requesterId } = req.body;
