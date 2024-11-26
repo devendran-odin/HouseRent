@@ -1,13 +1,117 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import Toast from "../Components/ToastMessage.jsx";
+
 function OwnerProperties() {
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState({ message: "", type: "" });
+
+  // Fetch owner properties
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/properties/getOwnerProperties`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setProperties(response.data);
+      } catch (error) {
+        setError("Failed to fetch properties. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  // Delete a property
+  const handleDelete = async (propertyId) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/properties/${propertyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        showToast(response.data.message, "success");
+      }
+      setProperties((prevProperties) =>
+        prevProperties.filter((property) => property._id !== propertyId)
+      );
+    } catch (error) {
+      showToast(error.response.data.message, "error");
+    }
+  };
+
+  if (loading) {
+    return <div>Loading properties...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (loading) {
+    return <div>Loading properties...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (properties.length === 0) {
+    return (
+      <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto border mt-8 bg-gray-50 rounded-md">
+        <div className="text-center py-10">
+          <p className="text-lg text-gray-500">
+            <span className="text-gray-800 font-medium">
+              No properties found.
+            </span>
+            <br />
+            <span className="text-[15px]">
+              Please add a property to view it here.
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+
+    // Clear toast after 5 seconds
+    setTimeout(() => {
+      setToast({ message: "", type: "" });
+    }, 2000);
+  };
+
   return (
     <>
+      <Toast message={toast.message} type={toast.type} />
       <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-        {/* <!-- Card --> */}
+        {/* Card */}
         <div className="flex flex-col">
           <div className="-m-1.5 overflow-x-auto">
             <div className="p-1.5 min-w-full inline-block align-middle">
               <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                {/* <!-- Table --> */}
+                {/* Table */}
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
@@ -42,228 +146,100 @@ function OwnerProperties() {
                           </span>
                         </div>
                       </th>
-                      <th scope="col" className="px-6 py-3 text-start">
-                        <div className="flex items-center gap-x-2">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-gray-800">
-                            Status
-                          </span>
-                        </div>
-                      </th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-gray-200">
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-600">
-                                #7854321
-                              </span>
-                            </div>
-                          </div>
-                        </a>
-                      </td>
-
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            10 Jun, 2024
+                    {properties.map((property) => (
+                      <tr
+                        key={property._id}
+                        className="bg-white hover:bg-gray-50"
+                      >
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <span className="block text-sm font-semibold text-gray-500">
+                            {"#" + property._id.slice(-8).toUpperCase()}
                           </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
+                        </td>
+
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <span className="text-sm text-gray-700">
+                            {property.postedDate
+                              ? formatDate(property.postedDate)
+                              : "Date not available"}
+                          </span>
+                        </td>
+
+                        <td className="whitespace-nowrap px-6 py-4 text-sm">
+                          <Link
+                            to={`/view/${property._id}`}
+                            className="text-blue-600 hover:underline"
+                          >
                             More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-3 inline-flex items-center gap-x-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                              />
-                            </svg>
-                            Edit
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full">
-                            <svg
-                              className="size-2.5"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                            </svg>
-                            Available
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
+                          </Link>
+                        </td>
 
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-600">
-                                #7854321
-                              </span>
-                            </div>
-                          </div>
-                        </a>
-                      </td>
-
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            10 Jun, 2024
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
-                            More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-3 inline-flex items-center gap-x-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                              />
-                            </svg>
-                            Edit
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                            <svg
-                              className="size-2.5"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
-                            </svg>
-                            Occupied
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
-
-                    <tr className="bg-white hover:bg-gray-50">
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <div className="flex items-center gap-x-3">
-                            <div className="grow">
-                              <span className="block text-sm font-semibold text-gray-600">
-                                #7854321
-                              </span>
-                            </div>
-                          </div>
-                        </a>
-                      </td>
-
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="text-sm text-gray-800">
-                            10 Jun, 2024
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="md:text-[15px] text-blue-600 hover:underline">
-                            More Info
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-3 inline-flex items-center gap-x-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                              />
-                            </svg>
-                            Edit
-                          </span>
-                        </a>
-                      </td>
-                      <td className="size-px whitespace-nowrap align-middle">
-                        <a className="block p-6" href="#">
-                          <span className="py-2 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-gray-200 rounded-full border">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              fill="black"
-                              className="bi bi-clock"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
-                            </svg>
-                            Pending
-                          </span>
-                        </a>
-                      </td>
-                    </tr>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <button
+                            onClick={() => handleDelete(property._id)}
+                            className="text-red-600 hover:underline"
+                          >
+                            <span className="py-2 px-3 inline-flex items-center gap-x-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                />
+                              </svg>
+                              Delete
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-                {/* <!-- End Table --> */}
+                {/* End Table */}
               </div>
             </div>
           </div>
         </div>
-        {/* <!-- End Card --> */}
+        {/* End Card */}
       </div>
     </>
   );
 }
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "short" }); // 'Nov', 'Dec', etc.
+  const year = date.getFullYear();
+
+  // Adding the suffix for day (st, nd, rd, th)
+  const suffix = (day) => {
+    if (day > 3 && day < 21) return "th"; // Handles 11th, 12th, 13th
+    switch (day % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
+  return `${day}${suffix(day)} ${month} ${year}`;
+}
+
 export default OwnerProperties;

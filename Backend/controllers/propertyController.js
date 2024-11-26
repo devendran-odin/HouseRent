@@ -1,5 +1,18 @@
 import cloudinary from "cloudinary"
 import Property from "../models/propertyModal.js";
+import Booking from "../models/bookingModal.js";
+
+
+export const getAllOwnerProperties = async (req, res) => {
+
+  try {
+    const properties = await Property.find({ userId: req.user.userId }).sort({ postedDate: -1 });
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error("Error da fetching properties:", error);
+    res.status(500).json({ message: "Failed to fetch properties" });
+  }
+};
 
 
 export const addProperty = async (req, res) => {
@@ -95,4 +108,31 @@ export const filterProperty = async (req, res) => {
       console.error("Error filtering properties:", error);
       res.status(500).json({ error: "Server error while filtering properties." });
     }
+};
+
+
+export const deleteProperty = async (req, res) => {
+  try {
+    const propertyId = req.params.propertyId;
+
+    // Check if the property exists
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    if (property.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    // Delete related bookings before deleting the property
+    await Booking.deleteMany({ propertyId: propertyId });
+
+    await Property.deleteOne({ _id: propertyId });
+
+    return res.status(200).json({ message: "Property and related bookings deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting property:", error);
+    return res.status(500).json({ message: "Failed to delete property" });
+  }
 };
