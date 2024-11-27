@@ -30,12 +30,15 @@ function Approvals() {
   }, []);
 
   // Handle Accept Action
-  const handleAccept = async (bookingId) => {
+  const handleAccept = async (bookingId, tenantEmail, tenantName) => {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/bookings/${bookingId}/accept`,
-        {},
+        {
+          tenantEmail, // Send tenant email
+          tenantName, // Send tenant name
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -177,7 +180,13 @@ function Approvals() {
                               <div>
                                 <button
                                   className="block p-6"
-                                  onClick={() => handleAccept(approval._id)}
+                                  onClick={() =>
+                                    handleAccept(
+                                      approval._id,
+                                      approval.tenantEmail,
+                                      approval.tenantName
+                                    )
+                                  }
                                 >
                                   <span className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-green-200 text-green-900 hover:bg-green-300 rounded-full border">
                                     <svg

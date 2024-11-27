@@ -1,5 +1,6 @@
 import Booking from "../models/bookingModal.js"
 import Property from "../models/propertyModal.js"
+import { sendApprovalEmail } from "./emailContoller.js";
 
 // Fetch booking approvals
 export const getApprovals = async (req, res) => {
@@ -33,7 +34,8 @@ export const getApprovals = async (req, res) => {
 export const acceptBooking = async (req, res) => {
   try {
     const bookingId = req.params.bookingId;
-    const booking = await Booking.findById(bookingId);
+    const { tenantEmail, tenantName } = req.body;
+    const booking = await Booking.findById(bookingId).populate('propertyId');;
     if (!booking) {
       return res.status(404).json({ message: "Booking not found." });
     }
@@ -41,6 +43,21 @@ export const acceptBooking = async (req, res) => {
     booking.status = "Accepted";
 
     await booking.save();
+  
+      
+    const property = booking.propertyId;  
+
+    // Send email to the tenant with property details
+    await sendApprovalEmail(
+      tenantEmail,
+      tenantName,
+      property.address, 
+      property.city,
+      property.rentAmount,
+      property.propertyType,
+      property.locationLink
+    );
+    
     res.status(200).json({ message: "Booking accepted successfully." });
   } catch (error) {
     console.error("Error accepting booking:", error);

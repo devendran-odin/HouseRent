@@ -47,8 +47,6 @@ export const addProperty = async (req, res) => {
         image: uploadResponse.secure_url, // Store Cloudinary URL here
       });
   
-      console.log(newProperty); // Log the property object for debugging
-  
       // Save the property to the database
       await newProperty.save();
   

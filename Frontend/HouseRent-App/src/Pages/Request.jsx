@@ -42,6 +42,19 @@ function Request() {
     return <div>Loading...</div>;
   }
 
+  if (bookings.length === 0) {
+    return (
+      <div className="text-center bg-gray-50 mt-10 md:mt-16 py-16 md:py-24">
+        <h2 className="text-lg font-semibold text-gray-600">
+          No requests found
+        </h2>
+        <p className="text-gray-600 text-sm mt-0.5">
+          You currently have no booking requests.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* <!-- Table Section --> */}
