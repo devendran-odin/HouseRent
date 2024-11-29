@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema({
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Property',
-        unique: true, // Prevents duplicate properties in the wishlist
       },
     ],
   });

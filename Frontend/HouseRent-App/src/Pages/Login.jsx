@@ -24,51 +24,65 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validations
     const { email, password } = formData;
 
-    // Validate Email
+    // Validations
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       showToast("Please enter a valid email address", "error");
       return;
     }
 
-    // Validate Password Length
     if (password.length < 8) {
       showToast("Password must be at least 8 characters long", "error");
       return;
     }
 
     try {
-      // Make API request for login
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`, // Same backend login endpoint
         { userEmail: email, userPassword: password }
       );
-
-      // Handle success response
+      showToast("Login successful!", "success");
       if (response.status === 200 && response.data.token) {
-        showToast("Login successful!", "success");
+        // Store token and user info in localStorage
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("userId", response.data.userId);
+
+        // Store the role (admin or user)
+        if (response.data.role) {
+          localStorage.setItem("userRole", response.data.role); // Store user role (admin/user)
+        }
+
         setIsLoggedIn(true);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+        // Redirect to either Admin or User Dashboard based on role
+        if (response.data.role === "admin") {
+          showToast(
+            response.data.message || "Admin login successful!",
+            "success"
+          );
+
+          setTimeout(() => {
+            navigate("/admin");
+            window.location.reload();
+          }, 1000);
+        } else {
+          showToast(response.data.message || "Login successful!", "success");
+          setTimeout(() => {
+            navigate("/");
+            window.location.reload();
+          }, 1000);
+        }
       } else {
         showToast(response.data.message || "Login failed", "error");
       }
     } catch (error) {
-      // Handle errors
       if (error.response) {
-        // Server responded with a status other than 2xx
         showToast(
           error.response.data.message || "Something went wrong",
           "error"
         );
       } else {
-        // Network or other errors
         showToast(
           "Unable to connect to the server. Please try again.",
           "error"
@@ -79,17 +93,14 @@ function Login() {
 
   const showToast = (message, type) => {
     setToast({ message, type });
-
-    // Clear toast after 5 seconds
     setTimeout(() => {
       setToast({ message: "", type: "" });
-    }, 2000);
+    }, 1500);
   };
 
   return (
     <>
       <Toast message={toast.message} type={toast.type} />
-
       <div className="mt-16 md:mt-28 bg-white border border-gray-200 rounded-xl w-[90%] md:w-[70%] lg:w-[45%] mx-auto shadow-sm">
         <div className="p-4 sm:p-7">
           <div className="text-center">

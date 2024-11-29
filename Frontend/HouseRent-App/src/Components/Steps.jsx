@@ -1,5 +1,6 @@
 import HomeBanner from "../assets/HomeBanner.jpg";
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Steps = React.forwardRef((props, ref) => {
   return (
@@ -56,7 +57,7 @@ const Steps = React.forwardRef((props, ref) => {
                     step: 3,
                     title: "Inquiry and Communication",
                     description:
-                      "Renters can inquire about properties directly.",
+                      "Renters can inquire about properties through email.",
                   },
                   {
                     step: 4,
@@ -92,34 +93,26 @@ const Steps = React.forwardRef((props, ref) => {
                     </div>
                   </div>
                 ))}
-                <a
+                <Link
                   className="group inline-flex items-center gap-x-2 py-2 px-3 bg-gradient-to-tl from-blue-600 to-violet-600 font-medium text-sm text-gray-50 rounded-full focus:outline-none"
-                  href="#"
+                  to="/properties"
                 >
                   <svg
-                    className="shrink-0 size-4"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
                     fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
                     stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    className="size-5"
                   >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     <path
-                      className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-hover:delay-100 transition"
-                      d="M14.05 2a9 9 0 0 1 8 7.94"
-                    ></path>
-                    <path
-                      className="opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition"
-                      d="M14.05 6A5 5 0 0 1 18 10"
-                    ></path>
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z"
+                    />
                   </svg>
-                  Schedule a call
-                </a>
+                  Get Started Now
+                </Link>
               </div>
             </div>
           </div>

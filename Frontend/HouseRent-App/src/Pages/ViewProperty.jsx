@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // To get the id from the URL
-import axios from "axios"; // For making API calls
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import Toast from "../Components/ToastMessage.jsx";
 import HomeImg from "../assets/home-img.jpg";
 import { handleRequestBooking } from "./Properties.jsx";
@@ -11,6 +11,8 @@ function ViewProperty() {
   const [loading, setLoading] = useState(true); // State to manage loading state
   const [error, setError] = useState(null); // State to handle errors
   const [toast, setToast] = useState({ message: "", type: "" });
+
+  const [isAdmin, setIsAdmin] = useState(false); // State to manage admin status
 
   const showToast = (message, type) => {
     setToast({ message, type });
@@ -32,6 +34,11 @@ function ViewProperty() {
         setLoading(false);
       }
     };
+
+    const userRole = localStorage.getItem("userRole"); // Check user role from localStorage (admin or regular user)
+    if (userRole === "admin") {
+      setIsAdmin(true); // If the user is admin, set state to true
+    }
 
     fetchPropertyDetails();
   }, [id]); // Fetch data when id changes
@@ -62,26 +69,25 @@ function ViewProperty() {
         }
       );
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         showToast(response.data.message, "success");
       }
     } catch (err) {
-      // Check for specific error message
       if (err.response && err.response.data.message) {
         showToast(err.response.data.message, "error");
       } else {
-        // Generic error message
         showToast("An error occurred. Please try again.", "error");
       }
     }
   };
+
   return (
     <>
       {/* Hero */}
       <Toast message={toast.message} type={toast.type} />
-      <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 mt-6 lg:mt-16 mb-7 ">
+      <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 mt-6 lg:mt-16 mb-7">
         {/* Grid */}
-        <div className="grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-12 lg:items-center ">
+        <div className="grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-12 lg:items-center">
           <div className="lg:col-span-4 mt-10 lg:mt-0">
             <img
               className="w-full h-[20rem] lg:h-[38rem] object-cover rounded-xl"
@@ -89,10 +95,9 @@ function ViewProperty() {
               alt={property.address || "Home Image"}
             />
           </div>
-          <div className="lg:col-span-3 mt-8 md:mt-8 lg:mt-1 ">
+          <div className="lg:col-span-3 mt-8 md:mt-8 lg:mt-1">
             <h1 className="block text-2xl font-bold text-gray-800 sm:text-2xl md:text-3xl lg:text-4xl">
-              {property.description || "A beautiful home"}{" "}
-              {/* Use dynamic data */}
+              {property.description || "A beautiful home"}
             </h1>
             <p className="mt-3 lg:mt-4 text-[16px] md:text-[17px] text-gray-800">
               {property.address || "No address provided"}
@@ -109,8 +114,7 @@ function ViewProperty() {
                     currency: "INR",
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
-                  }).format(property.rentAmount || 0)}{" "}
-                  {/* Use dynamic rent */}
+                  }).format(property.rentAmount || 0)}
                 </p>
               </div>
               <div className="p-4 border border-gray-200 rounded-lg bg-white">
@@ -158,15 +162,18 @@ function ViewProperty() {
                 ? formatDate(property.postedDate)
                 : "Date not available"}
             </p>
+
             <button
               className="py-3 px-3 my-4 lg:my-5 w-full items-center hover:text-gray-700 text-[16px] hover:border-green-600 font-medium rounded-lg border border-black disabled:opacity-50 disabled:pointer-events-none"
               onClick={handleFavorites}
+              disabled={isAdmin} // Disable button for admin users
             >
               Add to Favorites
             </button>
             <button
               className="py-3 px-3 mt-1 lg:mt-2 w-full items-center text-[16px] font-medium rounded-lg border border-transparent bg-gradient-to-tl from-blue-600 to-violet-600 text-white focus:outline-none hover:from-violet-600 hover:to-blue-600 focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
               onClick={() => handleRequestBooking(property._id, showToast)}
+              disabled={isAdmin} // Disable button for admin users
             >
               Request to Book
             </button>
@@ -179,14 +186,11 @@ function ViewProperty() {
 
 function formatDate(dateString) {
   const date = new Date(dateString);
-
   const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "short" }); // 'Nov', 'Dec', etc.
+  const month = date.toLocaleString("default", { month: "short" });
   const year = date.getFullYear();
-
-  // Adding the suffix for day (st, nd, rd, th)
   const suffix = (day) => {
-    if (day > 3 && day < 21) return "th"; // Handles 11th, 12th, 13th
+    if (day > 3 && day < 21) return "th";
     switch (day % 10) {
       case 1:
         return "st";
@@ -198,7 +202,7 @@ function formatDate(dateString) {
         return "th";
     }
   };
-
   return `${day}${suffix(day)} ${month} ${year}`;
 }
+
 export default ViewProperty;

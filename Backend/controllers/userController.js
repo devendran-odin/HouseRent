@@ -1,4 +1,6 @@
 import User from "../models/userModal.js";
+import Booking from "../models/bookingModal.js";
+import Property from "../models/propertyModal.js"
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -36,31 +38,55 @@ export const signup = async (req, res) => {
 
 
 export const login = async (req, res) => {
-    const { userEmail, userPassword } = req.body;
+  const { userEmail, userPassword } = req.body;
 
-    try {
-        // Find user by email
-        const user = await User.findOne({ userEmail });
+  try {
+      // Check if the user is trying to log in as an admin
+      if (userEmail === process.env.ADMIN_EMAIL && userPassword === process.env.ADMIN_PASSWORD) {
+          // Admin credentials matched
+          const token = jwt.sign(
+              { userId: 'admin', role: 'admin' }, // Hardcode admin ID and role
+              process.env.JWT_SECRET_KEY,
+              { expiresIn: '24h' }
+          );
 
-        if (!user) {
-            return res.status(400).json({ message: "Invalid email or password" });
-        }
+          return res.status(200).json({
+              message: "Admin login successful",
+              userId: 'admin',  // Admin ID
+              role: 'admin',    // Admin role
+              token
+          });
+      }
 
-        // Check if the password matches
-        const isMatch = await user.matchPassword(userPassword);
+      // If not admin, proceed with normal user login
+      const user = await User.findOne({ userEmail });
+      if (!user) {
+          return res.status(400).json({ message: "Invalid email or password" });
+      }
 
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid email or password" });
-        }
+      // Check if the password matches
+      const isMatch = await user.matchPassword(userPassword);
+      if (!isMatch) {
+          return res.status(400).json({ message: "Invalid email or password" });
+      }
 
-        // If password matches, create a token (JWT)
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
+      // If user is authenticated, create a token and return user details
+      const token = jwt.sign(
+          { userId: user._id, role: 'user' },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: '24h' }
+      );
 
-        res.status(200).json({ message: "Login successful", userId: user._id, token });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
-    }
+      res.status(200).json({
+          message: "Login successful",
+          userId: user._id,
+          role: 'user',  // User role
+          token
+      });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+  }
 };
 
 export const getUser = async (req, res) => {
@@ -89,3 +115,50 @@ export const getUser = async (req, res) => {
 
 
 
+export const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find().select("-userPassword"); // Exclude password
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch users", error });
+  }
+}
+
+
+export const getOwnerCount = async(req, res) => {
+  try {
+    const uniqueOwners = await Property.distinct('userId');
+    res.json({ totalOwners: uniqueOwners.length });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching total owners', error });
+  }
+
+}
+
+
+export const getUserCount = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    res.json({ totalUsers });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching total users', error });
+  }
+}
+
+ 
+export const deleteUserById = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    await Booking.deleteMany({
+      $or: [{ ownerId: userId }, { requesterId: userId }],
+    });
+    await Property.deleteMany({ userId });
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ message: "User and related records deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting user and related records:", error);
+    res.status(500).json({ message: "Failed to delete user and related records." });
+  }
+}

@@ -18,5 +18,3 @@ dist
 dist-ssr
 *.local
 
-
-uploads/*

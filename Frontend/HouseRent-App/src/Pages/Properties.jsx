@@ -117,7 +117,7 @@ function Properties() {
         {/* Conditional Rendering for Empty Properties */}
         {properties.length === 0 ? (
           <div className="text-center text-lg text-gray-500 p-5">
-            No properties found. Try adjusting your filters.
+            No properties found.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">

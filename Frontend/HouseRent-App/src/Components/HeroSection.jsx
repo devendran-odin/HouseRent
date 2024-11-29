@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import FilterModal from "./FilterModal.jsx";
 function HeroSection() {
   return (
     <>

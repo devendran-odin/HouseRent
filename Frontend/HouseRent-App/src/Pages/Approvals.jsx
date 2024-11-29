@@ -36,8 +36,8 @@ function Approvals() {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/bookings/${bookingId}/accept`,
         {
-          tenantEmail, // Send tenant email
-          tenantName, // Send tenant name
+          tenantEmail,
+          tenantName,
         },
         {
           headers: {

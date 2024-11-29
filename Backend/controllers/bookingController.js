@@ -112,7 +112,10 @@ export const getBookings = async (req, res) => {
 
 export const handleBookingRequest = async (req, res) => {
     const { propertyId, requesterId } = req.body;
-  
+    if(!(propertyId) || !(requesterId)){
+     return res.status(500).json({ message: "Login to Book the Property" });
+    }
+
     try {
       // Fetch the property and verify ownership
       const property = await Property.findById(propertyId).populate("userId");

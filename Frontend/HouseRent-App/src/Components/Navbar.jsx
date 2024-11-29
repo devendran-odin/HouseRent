@@ -1,11 +1,19 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useState, useEffect } from "react"; // Importing useState to manage the toggle state
 
 function Navbar({ scrollToSteps }) {
   const { isLoggedIn, logout } = useAuth();
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Get user role from localStorage
+    const role = localStorage.getItem("userRole");
+    setUserRole(role);
+  }, [isLoggedIn]);
 
   const handleAboutClick = () => {
     if (location.pathname !== "/") {
@@ -14,6 +22,10 @@ function Navbar({ scrollToSteps }) {
     } else {
       scrollToSteps();
     }
+  };
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen((prevState) => !prevState); // Toggle the menu open/close state
   };
 
   return (
@@ -37,15 +49,14 @@ function Navbar({ scrollToSteps }) {
             <div className="md:hidden">
               <button
                 type="button"
-                className="hs-collapse-toggle relative size-9 flex justify-center items-center text-sm font-semibold rounded-full border border-gray-200 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
-                id="hs-header-classic-collapse"
-                aria-expanded="false"
+                className="relative size-9 flex justify-center items-center text-sm font-semibold rounded-full border border-gray-200 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+                onClick={handleMenuToggle} // Trigger the menu toggle when clicked
+                aria-expanded={isMenuOpen ? "true" : "false"} // Reflect menu open/closed state
                 aria-controls="hs-header-classic"
                 aria-label="Toggle navigation"
-                data-hs-collapse="#hs-header-classic"
               >
                 <svg
-                  className="hs-collapse-open:hidden size-4"
+                  className={`size-4 ${isMenuOpen ? "hidden" : "block"}`} // Toggle visibility based on isMenuOpen
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -61,7 +72,7 @@ function Navbar({ scrollToSteps }) {
                   <line x1="3" x2="21" y1="18" y2="18" />
                 </svg>
                 <svg
-                  className="hs-collapse-open:block shrink-0 hidden size-4"
+                  className={`size-4 ${isMenuOpen ? "block" : "hidden"}`} // Toggle visibility based on isMenuOpen
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -85,11 +96,13 @@ function Navbar({ scrollToSteps }) {
           {/* <!-- Collapse --> */}
           <div
             id="hs-header-classic"
-            className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow md:block"
+            className={`overflow-hidden overflow-y-auto max-h-[75vh] transition-all duration-300 ${
+              isMenuOpen ? "block" : "hidden"
+            } md:block`}
             aria-labelledby="hs-header-classic-collapse"
           >
-            <div className="overflow-hidden overflow-y-auto max-h-[75vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
-              <div className="py-2 md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1">
+            <div className="py-2 md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1">
+              {userRole !== "admin" && (
                 <Link
                   className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-blue-600 "
                   to="/properties"
@@ -112,77 +125,75 @@ function Navbar({ scrollToSteps }) {
                   </svg>
                   Properties
                 </Link>
+              )}
 
-                <a
-                  className="p-2 flex items-center text-sm text-gray-800 
-                  hover:cursor-pointer hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                  onClick={handleAboutClick}
+              <a
+                className="p-2 flex items-center text-sm text-gray-800 
+                hover:cursor-pointer hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                onClick={handleAboutClick}
+              >
+                <svg
+                  className="shrink-0 size-4 me-3 md:me-2 block md:hidden"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 12h.01" />
+                  <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                  <path d="M22 13a18.15 18.15 0 0 1-20 0" />
+                  <rect width="20" height="14" x="2" y="6" rx="2" />
+                </svg>
+                About
+              </a>
+
+              {isLoggedIn ? (
+                <Link
+                  className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-blue-600"
+                  to={userRole === "admin" ? "/admin" : "/profile"}
                 >
                   <svg
-                    className="shrink-0 size-4 me-3 md:me-2 block md:hidden"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
                     fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.3}
                     stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    className="size-5 mr-2 md:mr-0.5"
                   >
-                    <path d="M12 12h.01" />
-                    <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-                    <path d="M22 13a18.15 18.15 0 0 1-20 0" />
-                    <rect width="20" height="14" x="2" y="6" rx="2" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                    />
                   </svg>
-                  About
-                </a>
-
-                {isLoggedIn ? (
-                  <Link
-                    className="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-blue-600"
-                    to="/profile"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.3}
-                      stroke="currentColor"
-                      className="size-5 mr-2 md:mr-0.5"
+                  {userRole === "admin" ? "Admin" : "Profile"}
+                </Link>
+              ) : (
+                <>
+                  {" "}
+                  <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
+                    <Link
+                      className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                      to="/register"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                      />
-                    </svg>
-                    Profile
-                  </Link>
-                ) : (
-                  <>
-                    {" "}
-                    <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
-                      <Link
-                        className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        to="/register"
-                      >
-                        Signup
-                      </Link>
-                    </div>
-                    <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
-                      <Link
-                        className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-                        to="/login"
-                      >
-                        Login
-                      </Link>
-                    </div>
-                  </>
-                )}
-
-                {/* <!-- End Button Group --> */}
-              </div>
+                      Signup
+                    </Link>
+                  </div>
+                  <div className="relative flex flex-wrap items-center gap-x-1.5 md:ps-2.5  md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
+                    <Link
+                      className="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                      to="/login"
+                    >
+                      Login
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           {/* <!-- End Collapse --> */}

@@ -47,7 +47,8 @@ function UserProfile() {
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
-    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
     showToast("Logout successful!", "success");
     setTimeout(() => {
       navigate("/");

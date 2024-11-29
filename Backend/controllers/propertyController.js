@@ -1,7 +1,8 @@
 import cloudinary from "cloudinary"
 import Property from "../models/propertyModal.js";
 import Booking from "../models/bookingModal.js";
-
+import fs from "fs";
+import path from "path";
 
 export const getAllOwnerProperties = async (req, res) => {
 
@@ -49,6 +50,15 @@ export const addProperty = async (req, res) => {
   
       // Save the property to the database
       await newProperty.save();
+
+      // Delete the file from uploads folder
+      fs.unlink(image.path, (err) => {
+        if (err) {
+          console.error("Failed to delete file:", err);
+        } else {
+          console.log(`File ${image.path} deleted successfully.`);
+        }
+      });
   
       return res.status(200).json({ message: "Property added successfully!", property: newProperty });
     } catch (error) {
@@ -119,7 +129,7 @@ export const deleteProperty = async (req, res) => {
       return res.status(404).json({ message: "Property not found" });
     }
 
-    if (property.userId.toString() !== req.user.userId) {
+    if (property.userId.toString() !== req.user.userId && req.user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized action" });
     }
 
@@ -134,3 +144,13 @@ export const deleteProperty = async (req, res) => {
     return res.status(500).json({ message: "Failed to delete property" });
   }
 };
+
+
+export const getPropertyCount = async (req, res) => {
+  try {
+    const totalProperties = await Property.countDocuments();
+    res.json({ totalProperties });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching total properties', error });
+  }
+}
