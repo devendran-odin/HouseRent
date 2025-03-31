@@ -5,6 +5,7 @@ import Bookmark from "../Components/Bookmark";
 import { Link } from "react-router-dom";
 import FilterModal from "../Components/FilterModal";
 import Toast from "../Components/ToastMessage";
+import Loader from "../Components/Loader";
 
 export function handleRequestBooking(propertyId, showToast) {
   const userId = localStorage.getItem("userId");
@@ -54,8 +55,8 @@ function Properties() {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/properties/getAllProperty`
-        ); // Replace with your backend URL
-        setProperties(response.data); // Assuming the API returns an array of properties
+        );
+        setProperties(response.data);
       } catch (err) {
         setError("Failed to fetch properties. Please try again later.");
       } finally {
@@ -68,15 +69,13 @@ function Properties() {
 
   const showToast = (message, type) => {
     setToast({ message, type });
-
-    // Clear toast after 5 seconds
     setTimeout(() => {
       setToast({ message: "", type: "" });
     }, 2000);
   };
 
   if (loading) {
-    return <div className="text-center p-5">Loading properties...</div>;
+    return <Loader></Loader>;
   }
 
   if (error) {

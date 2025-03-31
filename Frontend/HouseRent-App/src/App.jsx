@@ -26,7 +26,9 @@ function App() {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    // Check localStorage for user role
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ping`, {
+      mode: "no-cors",
+    }).catch((err) => console.error("Warm-up request failed", err));
     const role = localStorage.getItem("userRole");
     setUserRole(role);
   }, []);

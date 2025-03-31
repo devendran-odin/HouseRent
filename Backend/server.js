@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import routes from "./routes/index.js"
 
-
 dotenv.config();
 
 const app = express();
@@ -19,6 +18,11 @@ mongoose.connect(process.env.MONGO_URI)
 .catch((err) => console.log('Error connecting to MongoDB:', err));
 
 app.use("/api", routes);
+
+app.get("/api/ping", (req, res) => {
+    res.status(200).send("Server is awake!");
+  });
+  
 
 app.listen(port, ()=> {
     console.log(`Server is running at port ${port}...`)

@@ -88,8 +88,6 @@ function NewProperty() {
       data.append("image", image);
       data.append("postedDate", postedDate);
 
-      console.log(data);
-
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/properties/addProperty`,
         data,
